@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+backend/lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Test cache
+.pytest_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env_venv/
+
+# Node
+node_modules/
+dist/
+build/
+
+# IDE / OS
+.vscode/
+.idea/
+.kiro/
+.agents/
+.opencode/
+.DS_Store
+Thumbs.db
+
+# Databases & Local Data
+*.sqlite3
+*.sqlite
+*.db
+backend/intake_state.db
+backend/email_intake/*.db
+chroma_data/
+backend/chroma_data/
+backend/Redis-x64.zip
+backend/Redis/
+
+# Secrets & Environment
+.env
+backend/.env
+backend/email_intake/credentials.json
+backend/email_intake/token.json
+
+# Exclude generated excel files except master (if needed)
+backend/data/*.xlsx
+!backend/data/O2C_Master_Dataset.xlsx
+
+# Root-level markdown files except README
+/*.md
+!/README.md
+
+# PowerShell archive script
+/zip-project.ps1
+
+# Windows reserved device-name artifact
+/backend/nul
