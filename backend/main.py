@@ -286,6 +286,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Health check (Render / load balancer) ────────────────────────────────
+@app.get("/healthz", tags=["Health"])
+async def healthz():
+    return {"status": "ok"}
+
 # ── API Routers ──────────────────────────────────────────────────────────
 app.include_router(auth_router,        prefix="/api/auth",           tags=["Auth"])
 app.include_router(orders_router,      prefix="/api/orders",         tags=["Orders"])

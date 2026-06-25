@@ -17,6 +17,7 @@ lib64/
 parts/
 sdist/
 var/
+graphify-out/
 wheels/
 share/python-wheels/
 *.egg-info/
@@ -64,6 +65,10 @@ backend/.env
 backend/email_intake/credentials.json
 backend/email_intake/token.json
 
+# Generated / backup artifacts
+repomix-output.md
+backend/chroma_data_backup_*/
+
 # Exclude generated excel files except master (if needed)
 backend/data/*.xlsx
 !backend/data/O2C_Master_Dataset.xlsx
@@ -77,3 +82,5 @@ backend/data/*.xlsx
 
 # Windows reserved device-name artifact
 /backend/nul
+
+/*.zip
