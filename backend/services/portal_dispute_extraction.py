@@ -10,7 +10,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from config import settings
-from ml.groq_client import _call_groq
+from ml.llm_client import call_llm, llm_available
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ def _fallback_preview(
         "review_notes": [
             "AI extraction could not run, so the form was prepared using simple text matching. Please review carefully."
             if reason != "no_api_key"
-            else "Groq API key is not configured, so the form was prepared using simple text matching. Please review carefully."
+            else "LLM API key is not configured, so the form was prepared using simple text matching. Please review carefully."
         ],
         "message": "Review the extracted dispute details below before submitting.",
         "source": reason,
@@ -169,7 +169,7 @@ def extract_portal_dispute_preview(
     if not text:
         return _fallback_preview("", invoices, orders)
 
-    if not settings.groq_api_key:
+    if not llm_available():
         return _fallback_preview(text, invoices, orders, reason="no_api_key")
 
     context = build_customer_context(invoices, orders)
@@ -215,7 +215,7 @@ Return exactly this JSON shape:
 """
 
     try:
-        raw = _call_groq(
+        raw = call_llm(
             [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
@@ -267,7 +267,7 @@ Return exactly this JSON shape:
             "missing_fields": missing,
             "review_notes": notes,
             "message": "Review the extracted dispute details below before submitting.",
-            "source": "groq",
+            "source": "llm",
         }
     except Exception as exc:
         logger.warning("Portal dispute preview extraction failed; using fallback: %s", exc)

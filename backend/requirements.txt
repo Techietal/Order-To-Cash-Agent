@@ -12,7 +12,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 httpx
-groq
 sentence-transformers
 gliner
 scikit-learn
@@ -38,7 +37,7 @@ google-auth-oauthlib
 google-auth-httplib2
 apscheduler
 
-# ── Agentic layer (Microsoft Agent Framework + Groq) ──
+# ── Agentic layer (Microsoft Agent Framework + Ollama Cloud) ──
 agent-framework>=1.0.0
 openai>=1.50.0
 psycopg[binary]>=3.2.0

@@ -59,7 +59,7 @@ function InvoiceCard({ inv, onGenerate, generating, result }) {
             disabled={generating}
           >
             {generating ? (
-              <><span className="loading-dot" />  Drafting with Groq...</>
+              <><span className="loading-dot" />  Drafting with Ollama Cloud...</>
             ) : (
               <><Bot size={16} />  Generate Dunning Email</>
             )}
@@ -73,7 +73,7 @@ function InvoiceCard({ inv, onGenerate, generating, result }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12 }}>
               <Bot size={13} style={{ color: 'var(--accent-violet)' }} />
-              <span style={{ color: 'var(--accent-violet)', fontWeight: 600 }}>AI-generated via Groq LLaMA 3.3 70B</span>
+              <span style={{ color: 'var(--accent-violet)', fontWeight: 600 }}>AI-generated via Ollama Cloud</span>
               {result.customer_segment && (
                 <span className="badge" style={{
                   background: {Premium:'rgba(16,185,129,.15)',Standard:'rgba(59,130,246,.15)',
@@ -167,7 +167,7 @@ export default function CollectionsPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Collections</h1>
-          <p className="page-subtitle">AI-generated dunning emails via Groq LLaMA 3.3 70B · k-means segment-driven tone · {invoices.length} overdue invoices</p>
+          <p className="page-subtitle">AI-generated dunning emails via Ollama Cloud · k-means segment-driven tone · {invoices.length} overdue invoices</p>
         </div>
       </div>
 

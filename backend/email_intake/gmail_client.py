@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import base64
+import json
 import logging
 import os
 from datetime import datetime, timezone
 from email.utils import parseaddr
+from pathlib import Path
 from typing import Optional
 
 from google.auth.transport.requests import Request
@@ -28,6 +30,16 @@ SEARCH_QUERY = (
 ).strip()
 
 
+def _materialize_json_secret(raw_json: str, target_file: str) -> None:
+    """Write a JSON env secret to the configured file path for Google auth."""
+    if not raw_json.strip():
+        return
+    target = Path(target_file)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    parsed = json.loads(raw_json)
+    target.write_text(json.dumps(parsed), encoding="utf-8")
+
+
 class GmailClient:
     """Thin wrapper around the Gmail API for the intake pipeline."""
 
@@ -37,6 +49,9 @@ class GmailClient:
 
     # ------------------------------------------------------------------ auth
     def _authenticate(self) -> Credentials:
+        _materialize_json_secret(config.GMAIL_CREDENTIALS_JSON, CREDENTIALS_FILE)
+        _materialize_json_secret(config.GMAIL_TOKEN_JSON, TOKEN_FILE)
+
         creds: Optional[Credentials] = None
         if os.path.exists(TOKEN_FILE):
             creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)

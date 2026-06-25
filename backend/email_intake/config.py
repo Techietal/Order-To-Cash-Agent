@@ -23,7 +23,15 @@ def _get_float(name: str, default: float) -> float:
     return float(raw)
 
 
+def _get_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 # Polling behavior
+EMAIL_INTAKE_ENABLED: bool = _get_bool("EMAIL_INTAKE_ENABLED", True)
 POLL_INTERVAL_MINUTES: int = _get_int("POLL_INTERVAL_MINUTES", 15)
 MAX_EMAILS_PER_CYCLE: int = _get_int("MAX_EMAILS_PER_CYCLE", 25)
 
@@ -50,10 +58,11 @@ GMAIL_CREDENTIALS_FILE: str = os.getenv(
 GMAIL_TOKEN_FILE: str = os.getenv(
     "GMAIL_TOKEN_FILE", os.path.join(_PACKAGE_DIR, "token.json")
 )
+GMAIL_CREDENTIALS_JSON: str = os.getenv("GMAIL_CREDENTIALS_JSON", "")
+GMAIL_TOKEN_JSON: str = os.getenv("GMAIL_TOKEN_JSON", "")
 
-# Groq / LLM
-GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+# LLM confidence threshold for ambiguous classifications.
+# The shared Ollama Cloud client is configured via the main backend config.
 LLM_CONFIDENCE_THRESHOLD: float = _get_float("LLM_CONFIDENCE_THRESHOLD", 0.6)
 
 # O2C backend (FastAPI) integration

@@ -157,34 +157,23 @@ def verify_xgboost():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 5. Check Groq API key (LLM for dunning emails + dispute resolution)
+# 5. Check Ollama Cloud API key (LLM for dunning emails + dispute resolution)
 # ─────────────────────────────────────────────────────────────────────────────
-def verify_groq():
-    banner("MODEL 5: Groq LLM API  (Collections + Disputes agents)")
-    print("  Purpose : Groq llama-3.3-70b generates dunning emails, dispute summaries")
-    print("  Source  : api.groq.com (cloud, no local download)")
+def verify_ollama_cloud():
+    banner("MODEL 5: Ollama Cloud LLM API  (Collections + Disputes agents)")
+    print("  Purpose : Ollama Cloud models generate dunning emails, dispute summaries")
+    print("  Source  : ollama.com (cloud, no local download)")
     print()
 
-    import os
-    # Try loading from .env first
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-    except ImportError:
-        pass
-
-    key = os.environ.get("GROQ_API_KEY", "")
-    if key and key.startswith("gsk_"):
-        check(f"GROQ_API_KEY set (starts with gsk_...{key[-6:]})")
+    from config import settings
+    if settings.ollama_cloud_api_key:
+        masked = settings.ollama_cloud_api_key[-6:]
+        check(f"OLLAMA_CLOUD_API_KEY set (ends with ...{masked})")
         return True
-    elif key:
-        warn("GROQ_API_KEY is set but may be invalid (should start with 'gsk_')")
-        return False
-    else:
-        warn("GROQ_API_KEY not set in .env — Collections & Disputes agents will use fallback text")
-        print("       → Get a free key at: https://console.groq.com/keys")
-        print("       → Add to backend/.env: GROQ_API_KEY=gsk_...")
-        return False
+    warn("OLLAMA_CLOUD_API_KEY not set in .env — LLM-powered features will use fallback text")
+    print("       → Create a key at: https://ollama.com/settings/keys")
+    print("       → Add to backend/.env: OLLAMA_CLOUD_API_KEY=...")
+    return False
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -205,7 +194,7 @@ if __name__ == "__main__":
         "Sentence Embeddings":  download_embeddings(),
         "Isolation Forest":     verify_isolation_forest(),
         "XGBoost (placeholders)": verify_xgboost(),
-        "Groq API key":         verify_groq(),
+        "Ollama Cloud API key": verify_ollama_cloud(),
     }
 
     banner("SUMMARY")

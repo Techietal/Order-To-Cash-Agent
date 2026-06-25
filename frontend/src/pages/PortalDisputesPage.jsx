@@ -146,7 +146,7 @@ function CreateDisputeForm({ invoices = [], orders = [], onCreated }) {
           )}
           {aiPreview.groq_corrections?.length > 0 && (
             <div style={{ background: '#ede9fe', color: '#5b21b6', borderRadius: 8, padding: '8px 10px', fontSize: 12, marginBottom: 10 }}>
-              Groq normalized: {aiPreview.groq_corrections.join('; ')}
+              LLM normalized: {aiPreview.groq_corrections.join('; ')}
             </div>
           )}
           <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>

@@ -9,14 +9,14 @@ import {
 
 // ── Agent metadata (mirrors OrderLifecyclePage) ─────────────────────────────
 const AGENT_META = {
-  'agent_01_order_ingestion':    { label: 'Agent 1 — Order Ingestion',    color: '#3b82f6', model: 'GLiNER NER + Groq',              icon: Package },
+  'agent_01_order_ingestion':    { label: 'Agent 1 — Order Ingestion',    color: '#3b82f6', model: 'GLiNER NER + Ollama Cloud',      icon: Package },
   'agent_02_credit_assessment':  { label: 'Agent 2 — Credit Check',       color: '#06b6d4', model: 'XGBoost Credit + PD Logistic',   icon: CreditCard },
   'agent_03_fraud_detection':    { label: 'Agent 3 — Fraud Detection',    color: '#ef4444', model: 'Isolation Forest + XGBoost',     icon: ShieldAlert },
   'agent_04_demand_forecasting': { label: 'Agent 4 — Demand Forecast',    color: '#8b5cf6', model: 'Prophet',                        icon: Zap },
   'agent_05_fulfillment':        { label: 'Agent 5 — Fulfillment',        color: '#22c55e', model: 'Rule-based',                     icon: CheckCircle },
   'agent_06_invoice_generation': { label: 'Agent 6 — Invoice',            color: '#f59e0b', model: 'Template engine',               icon: FileText },
   'agent_07_payment_monitoring': { label: 'Agent 7 — Payment Monitor',    color: '#f59e0b', model: 'XGBoost Delay',                  icon: Clock },
-  'agent_08_collections':        { label: 'Agent 8 — Collections',        color: '#f59e0b', model: 'K-Means + Groq Dunning',         icon: AlertTriangle },
+  'agent_08_collections':        { label: 'Agent 8 — Collections',        color: '#f59e0b', model: 'K-Means + Ollama Cloud Dunning', icon: AlertTriangle },
   'COMPLIANCE':                  { label: 'Policy Engine / Compliance',   color: '#8b5cf6', model: 'Rule Engine RULE-001 to RULE-008', icon: AlertTriangle },
 }
 

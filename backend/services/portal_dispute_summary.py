@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from config import settings
 from database.postgres import get_pool
-from ml.groq_client import _call_groq
+from ml.llm_client import call_llm, llm_available
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +38,10 @@ def generate_ai_summary_payload(
     invoice_id: Optional[str] = None,
     order_id: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Generate a concise internal summary. Falls back safely if Groq is unavailable."""
+    """Generate a concise internal summary. Falls back safely if the LLM is unavailable."""
     base = fallback_summary(dispute_type, subject, latest_customer_message, proof_count, attachment_names)
 
-    if not settings.groq_api_key:
+    if not llm_available():
         return {"summary": base, "status": "fallback_no_api_key", "model": "fallback"}
 
     prompt = f"""
@@ -76,13 +76,13 @@ Return exactly this JSON shape:
 """
 
     try:
-        raw = _call_groq([{"role": "user", "content": prompt}], json_mode=True)
+        raw = call_llm([{"role": "user", "content": prompt}], json_mode=True)
         data = json.loads(raw)
         summary = (data.get("summary") or base).strip()
         return {
             "summary": summary[:1200],
             "status": "generated",
-            "model": settings.groq_model_primary,
+            "model": settings.ollama_cloud_model_primary,
             "raw": data,
         }
     except Exception as exc:

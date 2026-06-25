@@ -81,7 +81,7 @@ export default function CashApplicationPage() {
       <div className="page-header">
         <div className="page-header-left">
           <h1 className="page-title">Cash Application</h1>
-          <p className="page-subtitle">Agent 9 — all-MiniLM-L6-v2 semantic matching · auto-post ≥ 78% · Groq LLM verification 50–77% · HITL below 50%</p>
+          <p className="page-subtitle">Agent 9 — all-MiniLM-L6-v2 semantic matching · auto-post ≥ 78% · Ollama Cloud verification 50–77% · HITL below 50%</p>
         </div>
         <span className="badge badge-green"><span className="ml-dot live" />Sentence Transformer: Live</span>
       </div>
@@ -107,7 +107,7 @@ export default function CashApplicationPage() {
         <div className="kpi-card">
           <div className="kpi-label">Confidence Threshold</div>
           <div className="kpi-value">78%</div>
-          <div className="kpi-delta">50–77%: Groq verifies · &lt;50%: HITL</div>
+          <div className="kpi-delta">50–77%: Ollama Cloud verifies · &lt;50%: HITL</div>
         </div>
       </div>
 
@@ -201,7 +201,7 @@ export default function CashApplicationPage() {
             <div className="card-header"><div className="card-title">Matching Pipeline</div></div>
             {[
               ['≥ 78% similarity', 'Auto-posted to AR immediately — no human touch', 'var(--accent-green)'],
-              ['50–77% similarity', 'Groq LLM secondary verification — confirms or rejects', 'var(--accent-blue)'],
+              ['50–77% similarity', 'Ollama Cloud secondary verification — confirms or rejects', 'var(--accent-blue)'],
               ['< 50% similarity', 'Routed to HITL queue for manual matching', 'var(--accent-red)'],
             ].map(([threshold, desc, color]) => (
               <div key={threshold} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border)' }}>

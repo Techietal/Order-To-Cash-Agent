@@ -4,6 +4,7 @@ Uses pydantic-settings for type-safe env var loading.
 """
 
 from functools import lru_cache
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -50,26 +51,13 @@ class Settings(BaseSettings):
     chromadb_port: int = 8001
     chromadb_persist_path: str = "./chroma_data"
 
-    # Groq
-    groq_api_key: str = ""
-    groq_model_primary: str = "llama-3.3-70b-versatile"
-    groq_model_fallback: str = "llama-3.1-8b-instant"
-    groq_max_rpm: int = 30
-
     # ── LLM provider (OpenAI-compatible) ──────────────────────────────────────
-    # Switch the MAF agents' model provider without touching code. All providers
-    # below are driven through MAF's OpenAIChatCompletionClient via base_url.
-    #   llm_provider: "openrouter" | "google" | "groq" | "ollama_cloud" | "ollama"
-    llm_provider: str = "openrouter"
+    # Only Ollama Cloud is supported; other providers are disabled.
+    llm_provider: str = "ollama_cloud"
 
     # OpenRouter (one key → hundreds of models, many free-tier; full tool-calling)
     # Get a free key at https://openrouter.ai/keys — no credit card required.
     # Append :free to any model id for the free tier (rate-limited, no billing).
-    openrouter_api_key: str = ""
-    openrouter_base_url: str = "https://openrouter.ai/api/v1"
-    openrouter_model_primary: str = "meta-llama/llama-3.3-70b-instruct:free"
-    openrouter_model_fallback: str = "mistralai/mistral-small-3.2-24b-instruct:free"
-
     # Ollama Cloud (remote GPU models, OpenAI-compatible; free tier, tool-calling)
     # Create a key at https://ollama.com/settings/keys ; models at
     # https://ollama.com/search?c=cloud . No local install needed in remote mode.
@@ -81,55 +69,29 @@ class Settings(BaseSettings):
     # Google AI Studio (Gemini / Gemma via the OpenAI-compatible endpoint)
     # NOTE: Gemini-3.x thinking models fail multi-turn tool loops via the compat
     # endpoint (thought_signature issue). Use gemini-2.5-flash / gemini-2.5-flash-lite.
-    google_api_key: str = ""
-    google_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
-    gemini_model_primary: str = "gemini-2.5-flash"
-    gemini_model_fallback: str = "gemini-2.5-flash-lite"
-
-    # Ollama (local, no quota)
-    ollama_base_url: str = "http://localhost:11434/v1"
-    ollama_model_primary: str = "qwen2.5:14b"
-    ollama_model_fallback: str = "llama3.1:8b"
+    @field_validator("llm_provider", mode="before")
+    @classmethod
+    def force_ollama_cloud_provider(cls, value: str | None) -> str:
+        configured = (value or "ollama_cloud").strip().lower()
+        if configured != "ollama_cloud":
+            return "ollama_cloud"
+        return configured
 
     @property
     def llm_base_url(self) -> str:
-        return {
-            "openrouter": self.openrouter_base_url,
-            "ollama_cloud": self.ollama_cloud_base_url,
-            "google": self.google_base_url,
-            "groq": "https://api.groq.com/openai/v1",
-            "ollama": self.ollama_base_url,
-        }.get(self.llm_provider, self.openrouter_base_url)
+        return self.ollama_cloud_base_url
 
     @property
     def llm_api_key(self) -> str:
-        return {
-            "openrouter": self.openrouter_api_key,
-            "ollama_cloud": self.ollama_cloud_api_key,
-            "google": self.google_api_key,
-            "groq": self.groq_api_key,
-            "ollama": "ollama",   # dummy; local Ollama ignores it
-        }.get(self.llm_provider, self.openrouter_api_key)
+        return self.ollama_cloud_api_key
 
     @property
     def llm_model_primary(self) -> str:
-        return {
-            "openrouter": self.openrouter_model_primary,
-            "ollama_cloud": self.ollama_cloud_model_primary,
-            "google": self.gemini_model_primary,
-            "groq": self.groq_model_primary,
-            "ollama": self.ollama_model_primary,
-        }.get(self.llm_provider, self.openrouter_model_primary)
+        return self.ollama_cloud_model_primary
 
     @property
     def llm_model_fallback(self) -> str:
-        return {
-            "openrouter": self.openrouter_model_fallback,
-            "ollama_cloud": self.ollama_cloud_model_fallback,
-            "google": self.gemini_model_fallback,
-            "groq": self.groq_model_fallback,
-            "ollama": self.ollama_model_fallback,
-        }.get(self.llm_provider, self.openrouter_model_fallback)
+        return self.ollama_cloud_model_fallback
 
     # JWT
     jwt_secret_key: str = "change_this_in_production_minimum_32_chars"

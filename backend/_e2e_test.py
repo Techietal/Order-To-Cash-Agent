@@ -3,7 +3,7 @@
 Runs three layers:
   A. Deterministic tool layer (no LLM) against real seed data.
   B. HITL plumbing via the shared runtime (start -> escalate -> detect -> finish).
-  C. Full LLM agent loop for each domain (only if GROQ_API_KEY is set).
+  C. Full LLM agent loop for each domain (only if OLLAMA_CLOUD_API_KEY is set).
 
 Isolation: creates a temp KYC row and temp dispute, snapshots/restores the seed
 invoice balance, and cleans up temp rows so seed data is left unchanged.
@@ -148,13 +148,13 @@ async def run_agent_safe(label, coro):
         res = await asyncio.wait_for(coro, timeout=120)
         ok = res.get("status") in ("done", "paused_hitl")
         if not ok and _is_quota(res.get("summary")):
-            print(f"  [SKIP] LLM {label} run — Groq daily token quota exhausted (external)")
+            print(f"  [SKIP] LLM {label} run — LLM daily token quota exhausted (external)")
             return res
         check(f"LLM {label} run -> {res.get('status')}", ok, (res.get("summary") or "")[:90])
         return res
     except Exception as exc:  # noqa: BLE001
         if _is_quota(str(exc)):
-            print(f"  [SKIP] LLM {label} run — Groq daily token quota exhausted (external)")
+            print(f"  [SKIP] LLM {label} run — LLM daily token quota exhausted (external)")
             return None
         check(f"LLM {label} run", False, f"{type(exc).__name__}: {exc}")
         return None
@@ -162,8 +162,8 @@ async def run_agent_safe(label, coro):
 
 async def section_c_llm():
     print("\n== C. Full LLM agent loops ==")
-    if not settings.groq_api_key:
-        print("  (skipped — no GROQ_API_KEY)")
+    if not settings.ollama_cloud_api_key:
+        print("  (skipped — no OLLAMA_CLOUD_API_KEY)")
         return
     from agents_maf.credit import agent as credit_agent
     from agents_maf.kyc import agent as kyc_agent

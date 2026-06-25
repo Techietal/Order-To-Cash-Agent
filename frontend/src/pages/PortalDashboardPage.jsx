@@ -298,7 +298,7 @@ export default function PortalDashboardPage() {
               </div>
               {nlpPreview.groq_corrections?.length > 0 && (
                 <div style={{ marginTop: 10, fontSize: 11, color: '#7c3aed', background: '#ede9fe', padding: '6px 10px', borderRadius: 6 }}>
-                  ✏️ Groq corrections: {nlpPreview.groq_corrections.join('; ')}
+                  ✏️ LLM corrections: {nlpPreview.groq_corrections.join('; ')}
                 </div>
               )}
               <div style={{ marginTop: 12, fontSize: 12, color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>

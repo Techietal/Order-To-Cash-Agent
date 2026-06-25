@@ -211,6 +211,9 @@ async def lifespan(app: FastAPI):
     async def _email_intake_loop():
         try:
             from email_intake import config as intake_cfg
+            if not intake_cfg.EMAIL_INTAKE_ENABLED:
+                logger.info("Email intake scheduler disabled by EMAIL_INTAKE_ENABLED.")
+                return
             from email_intake.poller import run_cycle
             import functools
             loop = asyncio.get_event_loop()

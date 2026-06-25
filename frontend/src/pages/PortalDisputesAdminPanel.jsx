@@ -215,7 +215,7 @@ function ResolveCreditModal({ dispute, onClose, onResolved }) {
             <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-muted)' }}>
               <div style={{ fontSize: 40, marginBottom: 16 }}>🤖</div>
               <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--text-secondary)', marginBottom: 8 }}>AI is analyzing the dispute thread…</div>
-              <div style={{ fontSize: 12 }}>Groq LLaMA 3.3-70b is reading the conversation and calculating a fair credit amount</div>
+              <div style={{ fontSize: 12 }}>Ollama Cloud is reading the conversation and calculating a fair credit amount</div>
             </div>
           ) : (
             <>

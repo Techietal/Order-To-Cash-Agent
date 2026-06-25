@@ -142,13 +142,13 @@ export default function MLMonitorPage() {
           <span className="badge badge-blue">How all 9 models connect</span>
         </div>
         {[
-          ['Agent 1 → Order Ingestion',  'GLiNER NER (extracts entities) → Groq LLM (validates + corrects) → MiniLM (customer lookup)', 'var(--accent-blue)'],
+          ['Agent 1 → Order Ingestion',  'GLiNER NER (extracts entities) → Ollama Cloud LLM (validates + corrects) → MiniLM (customer lookup)', 'var(--accent-blue)'],
           ['Agent 2 → Credit Check',     'XGBoost Credit (3-class risk) + PD Logistic Reg (exact % default) → Policy Engine (Rule-001 to Rule-008)', 'var(--accent-cyan)'],
           ['Agent 3 → Fraud Detection',  'Isolation Forest (anomaly score) + XGBoost Fraud (pattern match) → dual-flag = auto-block', 'var(--accent-red)'],
           ['Agent 4 → Demand Forecast',  'Prophet (trained, 1 model per SKU) → 30-day daily forecast with 95% confidence bands', 'var(--accent-violet)'],
           ['Agent 7 → Payment Monitor',  'XGBoost Delay → late_probability per open invoice → updates collection_priority every 15 min', 'var(--accent-amber)'],
-          ['Agent 8 → Collections',      'K-Means (4 segments) → tone = Premium/Standard/At-Risk/Problem → Groq writes dunning email', 'var(--accent-green)'],
-          ['Agent 9 → Cash Application', 'MiniLM (384-dim) → cosine similarity → ≥78% auto-post · 50-77% Groq verify · <50% HITL', 'var(--accent-cyan)'],
+          ['Agent 8 → Collections',      'K-Means (4 segments) → tone = Premium/Standard/At-Risk/Problem → Ollama Cloud writes dunning email', 'var(--accent-green)'],
+          ['Agent 9 → Cash Application', 'MiniLM (384-dim) → cosine similarity → ≥78% auto-post · 50-77% Ollama Cloud verify · <50% HITL', 'var(--accent-cyan)'],
         ].map(([step, desc, color]) => (
           <div key={step} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
             <div style={{ width: 3, background: color, borderRadius: 2, flexShrink: 0 }} />

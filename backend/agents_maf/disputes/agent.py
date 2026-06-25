@@ -1,4 +1,4 @@
-"""Disputes Agent runner (MAF v1.9.0, Groq) — see agents_maf/runtime.py for the driver."""
+"""Disputes Agent runner (MAF v1.9.0, Ollama Cloud) — see agents_maf/runtime.py for the driver."""
 from __future__ import annotations
 
 import logging

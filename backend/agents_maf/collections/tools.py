@@ -96,7 +96,7 @@ async def count_weekly_contacts(
 
 # ── WRITE tools ───────────────────────────────────────────────────────────────
 
-@tool(name="draft_dunning_email", description="Draft (but do not send) a segment-toned dunning email via Groq.")
+@tool(name="draft_dunning_email", description="Draft (but do not send) a segment-toned dunning email via Ollama Cloud.")
 async def draft_dunning_email(
     customer_name: Annotated[str, "Company name"],
     invoice_id: Annotated[str, "Invoice ID"],
@@ -106,8 +106,8 @@ async def draft_dunning_email(
     payment_terms: Annotated[int, "Net payment terms in days"] = 30,
     tone: Annotated[str, "Tone: gentle_reminder | firm | urgent | legal_warning"] = "firm",
 ) -> dict:
-    """Generate a personalised dunning email draft using Groq LLaMA 3.3 70B."""
-    from ml.groq_client import generate_dunning_email
+    """Generate a personalised dunning email draft using Ollama Cloud."""
+    from ml.llm_client import generate_dunning_email
     result = generate_dunning_email(
         customer_name=customer_name,
         invoice_id=invoice_id,

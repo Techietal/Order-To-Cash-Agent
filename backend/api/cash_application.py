@@ -11,6 +11,7 @@ from api.staff_deps import require_role
 from config import settings
 from datetime import datetime
 import logging
+from ml.llm_client import call_llm
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -236,7 +237,7 @@ async def process_payment_semantic(
     1. Embeds remittance text via Sentence Transformers (all-MiniLM-L6-v2)
     2. Computes cosine similarity against all open invoices
     3. Picks best match above confidence threshold → auto-posts to AR
-    4. Falls back to Groq LLM verification for borderline matches
+    4. Falls back to LLM verification for borderline matches
     5. Routes low-confidence to HITL with reason code
     """
     # Email-first customer lookup (Priority 0): scope invoices to the sender's account
@@ -347,7 +348,7 @@ async def process_payment_semantic(
         }
 
     elif best_score >= REVIEW_THRESHOLD:
-        # Groq LLM secondary verification for borderline matches
+        # LLM secondary verification for borderline matches
         prompt = (
             f"You are the Cash Application Agent. Verify if this bank remittance text matches the invoice.\n"
             f"Invoice ID: {inv_id}\nBalance Due: ₹{bal:,.0f}\n\n"
@@ -355,7 +356,7 @@ async def process_payment_semantic(
             f"Respond with JSON: {{\"match\": true/false, \"reason\": \"...\"}}"
         )
         try:
-            llm_resp = call_groq([{"role": "user", "content": prompt}], json_mode=True)
+            llm_resp = call_llm([{"role": "user", "content": prompt}], json_mode=True)
             import json
             parsed = json.loads(llm_resp) if isinstance(llm_resp, str) else llm_resp
             llm_match = parsed.get("match", False)
@@ -374,13 +375,13 @@ async def process_payment_semantic(
             return {
                 "success": True, "invoice_id": inv_id,
                 "confidence": round(best_score, 3), "route": "LLM_VERIFIED",
-                "agent_reason": f"Groq LLM confirmed match (ST confidence {best_score:.1%}). ₹{bal:,.0f} posted.",
+                "agent_reason": f"LLM confirmed match (ST confidence {best_score:.1%}). ₹{bal:,.0f} posted.",
             }
         else:
             return {
                 "success": False, "invoice_id": inv_id,
                 "confidence": round(best_score, 3), "route": "LLM_REJECTED",
-                "agent_reason": f"ST confidence {best_score:.1%} borderline. Groq LLM rejected match for {inv_id}.",
+                "agent_reason": f"ST confidence {best_score:.1%} borderline. LLM rejected match for {inv_id}.",
             }
     else:
         # Route to HITL

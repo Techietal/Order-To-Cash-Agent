@@ -236,13 +236,13 @@ async def ingest_order_email(
     """
     events = []
     
-    # Step 1: GLiNER + Groq NER pipeline
-    # GLiNER extracts locally first, then Groq evaluates, corrects, and fills gaps
+    # Step 1: GLiNER + Ollama Cloud LLM NER pipeline
+    # GLiNER extracts locally first, then the LLM evaluates, corrects, and fills gaps
     entities = extract_order_entities_with_llm_backup(payload.email_text)
     corrections = entities.get("_groq_corrections", [])
     ner_confidence = entities.get("_ner_confidence", "MEDIUM")
     ner_sources = {k: v.get("source", "gliner") for k, v in entities.items() if isinstance(v, dict) and "source" in v}
-    events.append(f"NER pipeline: {len(entities)} entities, confidence={ner_confidence}, Groq corrections={len(corrections)}")
+    events.append(f"NER pipeline: {len(entities)} entities, confidence={ner_confidence}, LLM corrections={len(corrections)}")
     logger.info(f"Agent 1 NER result: {entities}")
     logger.info(f"NER sources: {ner_sources}")
     

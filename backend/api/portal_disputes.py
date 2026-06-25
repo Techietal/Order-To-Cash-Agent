@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from api.staff_deps import get_current_staff, require_admin
 from database.postgres import get_db
-from ml.groq_client import _call_groq
+from ml.llm_client import call_llm
 from services.email_service import send_optional_email
 from services.inventory_service import RETURN_RECEIPT, record_adjustment
 
@@ -129,7 +129,7 @@ async def portal_dispute_stats(staff=Depends(get_current_staff), db=Depends(get_
 
 @router.get("/{dispute_id}/ai-suggest")
 async def portal_dispute_ai_suggest(dispute_id: str, staff=Depends(get_current_staff), db=Depends(get_db)):
-    """Groq analyzes the portal dispute thread and pre-fills resolution fields."""
+    """Ollama Cloud LLM analyzes the portal dispute thread and pre-fills resolution fields."""
     dispute = await db.fetchrow(
         """
         SELECT d.*,
@@ -183,7 +183,7 @@ Return JSON only:
 }}"""
 
     try:
-        raw = _call_groq([{"role": "user", "content": prompt}], json_mode=True)
+        raw = call_llm([{"role": "user", "content": prompt}], json_mode=True)
         result = json.loads(raw)
         return {
             "dispute_id": dispute_id,

@@ -1,4 +1,4 @@
-"""Collections Agent runner (MAF v1.9.0, Groq).
+"""Collections Agent runner (MAF v1.9.0, Ollama Cloud).
 
 Design note — agent vs. durable workflow
 ----------------------------------------

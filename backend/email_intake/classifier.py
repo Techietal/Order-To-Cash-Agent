@@ -1,11 +1,11 @@
-"""Email classification: keyword rules first, Groq LLM fallback."""
+"""Email classification: keyword rules first, Ollama Cloud LLM fallback."""
 
 from __future__ import annotations
 
 import json
 import logging
 
-from groq import Groq
+from ml.llm_client import call_llm
 
 from . import config
 from .models import Category, Classification, EmailMessage
@@ -90,31 +90,22 @@ def _rule_classify(email: EmailMessage) -> Classification | None:
 
 
 def _llm_classify(email: EmailMessage) -> Classification:
-    """Classify an ambiguous email using the Groq LLM."""
-    if not config.GROQ_API_KEY.strip():
-        raise RuntimeError(
-            "GROQ_API_KEY is not set. Copy .env.example to .env and add your "
-            "Groq API key (get one at https://console.groq.com/keys)."
-        )
-
-    client = Groq(api_key=config.GROQ_API_KEY)
-
+    """Classify an ambiguous email using the Ollama Cloud LLM."""
     user_content = (
         f"From: {email.sender}\n"
         f"Subject: {email.subject}\n\n"
         f"{email.body}"
     )
 
-    response = client.chat.completions.create(
-        model=config.GROQ_MODEL,
-        response_format={"type": "json_object"},
+    raw = call_llm(
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_content},
         ],
+        json_mode=True,
     )
 
-    data = json.loads(response.choices[0].message.content)
+    data = json.loads(raw)
     raw_category = str(data.get("category", "OTHER")).upper()
     try:
         category = Category(raw_category)

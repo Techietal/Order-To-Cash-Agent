@@ -152,17 +152,13 @@ Agent chaining is enabled by `agent_chain_enabled`. When a tool records a handof
 
 ### LLM Provider Configuration
 
-The MAF agents use `backend/agents_maf/llm.py`, which builds an OpenAI-compatible chat completion client from `backend/config.py`. The provider can be switched without code changes.
-
-Supported provider keys:
+The backend uses only Ollama Cloud for LLM calls. `backend/agents_maf/llm.py` and
+`backend/ml/llm_client.py` both build OpenAI-compatible chat completion clients
+from `backend/config.py`.
 
 | `llm_provider` | Key setting | Base URL setting | Primary model setting | Fallback model setting |
 |---|---|---|---|---|
-| `openrouter` | `openrouter_api_key` | `openrouter_base_url` | `openrouter_model_primary` | `openrouter_model_fallback` |
 | `ollama_cloud` | `ollama_cloud_api_key` | `ollama_cloud_base_url` | `ollama_cloud_model_primary` | `ollama_cloud_model_fallback` |
-| `google` | `google_api_key` | `google_base_url` | `gemini_model_primary` | `gemini_model_fallback` |
-| `groq` | `groq_api_key` | built-in Groq URL | `groq_model_primary` | `groq_model_fallback` |
-| `ollama` | local dummy key | `ollama_base_url` | `ollama_model_primary` | `ollama_model_fallback` |
 
 If the primary model hits a rate limit or quota error and the fallback differs from the primary model, `run_agent_with_fallback()` retries once with the fallback model.
 
@@ -312,11 +308,12 @@ Key variables to configure:
 
 | Variable | Description |
 |---|---|
-| `LLM_PROVIDER` | Selects the provider used by `backend/agents_maf/llm.py`; supported values include `openrouter`, `ollama_cloud`, `google`, `groq`, and `ollama` |
-| `OLLAMA_CLOUD_API_KEY` | Required when `LLM_PROVIDER=ollama_cloud`; used by the configured MAF agents |
-| `GROQ_API_KEY` | Required when `LLM_PROVIDER=groq`; used by MAF agents and older Groq-backed utilities |
-| `OPENROUTER_API_KEY` | Required when `LLM_PROVIDER=openrouter` |
-| `GOOGLE_API_KEY` | Required when `LLM_PROVIDER=google` |
+| `LLM_PROVIDER` | Must be `ollama_cloud`; unsupported values are coerced to `ollama_cloud` |
+| `OLLAMA_CLOUD_API_KEY` | Required for all LLM calls |
+| `OLLAMA_CLOUD_BASE_URL` | Ollama Cloud OpenAI-compatible API URL |
+| `OLLAMA_CLOUD_MODEL_PRIMARY` | Primary Ollama Cloud model |
+| `OLLAMA_CLOUD_MODEL_FALLBACK` | Fallback Ollama Cloud model used after rate limits |
+| `LLM_CONFIDENCE_THRESHOLD` | Minimum email-intake classification confidence before review |
 | `SMTP_USER` / `SMTP_PASSWORD` | Gmail credentials for outbound email (collections, OTPs) |
 | `POSTGRES_*` | PostgreSQL connection details |
 | `JWT_SECRET_KEY` | Change this in production (min 32 chars) |

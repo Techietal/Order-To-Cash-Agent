@@ -19,14 +19,14 @@ const stepApi = {
 }
 
 const AGENT_META = {
-  'agent_01_order_ingestion':      { label: 'Agent 1 — Order Ingestion',      icon: Package,      color: '#3b82f6', model: 'GLiNER NER + Groq' },
+  'agent_01_order_ingestion':      { label: 'Agent 1 — Order Ingestion',      icon: Package,      color: '#3b82f6', model: 'GLiNER NER + Ollama Cloud' },
   'agent_02_credit_assessment':    { label: 'Agent 2 — Credit Check',          icon: CreditCard,   color: '#06b6d4', model: 'XGBoost Credit + PD Logistic Reg' },
   'agent_03_fraud_detection':      { label: 'Agent 3 — Fraud Detection',       icon: ShieldAlert,  color: '#ef4444', model: 'Isolation Forest + XGBoost Fraud' },
   'agent_04_demand_forecasting':   { label: 'Agent 4 — Demand Forecast',       icon: Zap,          color: '#8b5cf6', model: 'Prophet' },
   'agent_05_fulfillment':          { label: 'Agent 5 — Fulfillment',           icon: CheckCircle,  color: '#22c55e', model: 'Rule-based' },
   'agent_06_invoice_generation':   { label: 'Agent 6 — Invoice Generation',    icon: FileText,     color: '#f59e0b', model: 'Template engine' },
   'agent_07_payment_monitoring':   { label: 'Agent 7 — Payment Monitor',       icon: Clock,        color: '#f59e0b', model: 'XGBoost Delay' },
-  'agent_08_collections':          { label: 'Agent 8 — Collections',           icon: AlertTriangle, color: '#f59e0b', model: 'K-Means + Groq Dunning' },
+  'agent_08_collections':          { label: 'Agent 8 — Collections',           icon: AlertTriangle, color: '#f59e0b', model: 'K-Means + Ollama Cloud Dunning' },
   'agent_09_cash_application':     { label: 'Agent 9 — Cash Application',      icon: DollarSign,   color: '#22c55e', model: 'MiniLM Semantic Matching' },
   'COMPLIANCE':                    { label: 'Policy Engine / Compliance',       icon: AlertTriangle, color: '#8b5cf6', model: 'Rule Engine (RULE-001 to RULE-008)' },
   'CASH_APPLICATION':              { label: 'Cash Application',                 icon: DollarSign,   color: '#22c55e', model: 'MiniLM Sentence Transformer' },

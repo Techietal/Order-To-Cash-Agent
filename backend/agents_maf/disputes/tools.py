@@ -45,14 +45,14 @@ async def get_dispute(
     }
 
 
-@tool(name="extract_dispute_entities", description="Extract dispute_type, amount, invoice ref from text via Groq NER.")
+@tool(name="extract_dispute_entities", description="Extract dispute_type, amount, invoice ref from text via Ollama Cloud NER.")
 async def extract_dispute_entities(
     text: Annotated[str, "The customer's dispute message text"],
 ) -> dict:
     """Return structured dispute entities from free text."""
-    from ml.groq_client import extract_dispute_entities_groq
+    from ml.llm_client import extract_dispute_entities
     try:
-        return extract_dispute_entities_groq(text)
+        return extract_dispute_entities(text)
     except Exception as exc:  # noqa: BLE001
         logger.warning("dispute NER failed: %s", exc)
         return {"dispute_type": "general_dispute", "dispute_reason": text[:200]}
@@ -65,7 +65,7 @@ async def summarize_dispute(
     detail: Annotated[str, "Key dispute detail / customer claim"] = "",
 ) -> dict:
     """Generate a short summary string for a human reviewer."""
-    from ml.groq_client import generate_dispute_summary
+    from ml.llm_client import generate_dispute_summary
     try:
         summary = generate_dispute_summary({
             "subject": subject, "dispute_type": dispute_type, "detail": detail,

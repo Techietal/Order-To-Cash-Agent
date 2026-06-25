@@ -1,11 +1,11 @@
 """
-O2C Agent v2.0 — GLiNER Zero-Shot NER + Groq LLM Evaluator
+O2C Agent v2.0 — GLiNER Zero-Shot NER + Ollama Cloud LLM Evaluator
 Model: urchade/gliner_medium-v2.1
 
 Pipeline:
   1. GLiNER extracts entities locally (~150ms, no API cost)
-  2. Groq evaluates the result, corrects mistakes, fills missing fields
-  3. Merged result returned with source tags per field (gliner / groq / groq_corrected)
+  2. Ollama Cloud LLM evaluates the result, corrects mistakes, fills missing fields
+  3. Merged result returned with source tags per field (gliner / llm / llm_corrected)
 
 Used by: Agent 1 (Order Ingestion), Agent 4 (Disputes)
 """
@@ -29,7 +29,7 @@ ORDER_ENTITIES = [
     "unit price",
 ]
 
-# Entity types for Dispute emails (fallback to Groq for dispute)
+# Entity types for Dispute emails (fallback to LLM for dispute)
 DISPUTE_ENTITIES = [
     "invoice_reference",
     "claim_amount",
@@ -86,38 +86,38 @@ def extract_order_entities_with_llm_backup(text: str, threshold: float = 0.35) -
     """
     MAIN ENTRY POINT for order NER.
     Step 1: GLiNER extracts entities locally (fast, no API cost)
-    Step 2: Groq evaluates the GLiNER result, corrects mistakes, fills missing fields
+    Step 2: Ollama Cloud LLM evaluates the GLiNER result, corrects mistakes, fills missing fields
     Returns merged result with per-field source tags.
     """
     # Step 1 — GLiNER (always runs)
     gliner_result = extract_order_entities(text, threshold=threshold)
     logger.info(f"GLiNER found {len(gliner_result)} entities: {list(gliner_result.keys())}")
 
-    # Step 2 — Groq evaluates and corrects
+    # Step 2 — Ollama Cloud LLM evaluates and corrects
     try:
-        from ml.groq_client import evaluate_and_correct_ner
+        from ml.llm_client import evaluate_and_correct_ner
         merged = evaluate_and_correct_ner(text, gliner_result)
-        corrections = merged.get("_groq_corrections", [])
+        corrections = merged.get("_llm_corrections", [])
         if corrections:
-            logger.info(f"Groq made {len(corrections)} correction(s): {corrections}")
+            logger.info(f"LLM made {len(corrections)} correction(s): {corrections}")
         else:
-            logger.info("Groq validated GLiNER result — no corrections needed")
+            logger.info("LLM validated GLiNER result — no corrections needed")
         return merged
     except Exception as e:
-        logger.warning(f"Groq NER evaluation unavailable ({e}), using GLiNER result only")
+        logger.warning(f"LLM NER evaluation unavailable ({e}), using GLiNER result only")
         return gliner_result
 
 
 def extract_dispute_entities(text: str, threshold: float = 0.5) -> Dict[str, Any]:
     """
-    Dispute NER — uses Groq directly (disputes are always free-form, messy emails).
-    Falls back to GLiNER if Groq is unavailable.
+    Dispute NER — uses Ollama Cloud LLM directly (disputes are always free-form, messy emails).
+    Falls back to GLiNER if the LLM is unavailable.
     """
     try:
-        from ml.groq_client import extract_dispute_entities_groq
-        return extract_dispute_entities_groq(text)
+        from ml.llm_client import extract_dispute_entities
+        return extract_dispute_entities(text)
     except Exception as e:
-        logger.warning(f"Groq dispute NER unavailable ({e}), falling back to GLiNER")
+        logger.warning(f"LLM dispute NER unavailable ({e}), falling back to GLiNER")
         # GLiNER fallback
         try:
             model = get_gliner_model()

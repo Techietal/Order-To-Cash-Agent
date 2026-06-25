@@ -817,7 +817,7 @@ async def nlp_order_preview(
     customer=Depends(get_current_customer),
 ):
     """
-    Extract order fields from free-text using GLiNER + Groq.
+    Extract order fields from free-text using GLiNER + Ollama Cloud LLM.
     Returns a preview for customer to confirm before submitting.
     """
     from ml.gliner_ner import extract_order_entities_with_llm_backup

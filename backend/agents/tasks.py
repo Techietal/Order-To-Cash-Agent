@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 @celery_app.task(name="agent_02_collections")
 def run_collections_agent(invoice_id: str):
     logger.info(f"Agent 2 (Collections) started for invoice: {invoice_id}")
-    # In a real scenario, this would query the DB, generate a Dunning email via Groq, and send it.
+    # In a real scenario, this would query the DB, generate a Dunning email via Ollama Cloud, and send it.
     return {"status": "success", "action": "dunning_email_sent"}
 
 @celery_app.task(name="agent_03_cash_application")
@@ -19,7 +19,7 @@ def run_cash_application_agent(remittance_id: str):
 @celery_app.task(name="agent_04_disputes")
 def run_dispute_agent(dispute_id: str):
     logger.info(f"Agent 4 (Disputes) started for dispute: {dispute_id}")
-    # Generates dispute resolution via Groq
+    # Generates dispute resolution via Ollama Cloud LLM
     return {"status": "success", "action": "dispute_resolved"}
 
 

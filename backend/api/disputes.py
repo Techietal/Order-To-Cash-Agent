@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 from database.postgres import get_db
 from api.staff_deps import require_role
-from ml.groq_client import _call_groq
+from ml.llm_client import call_llm
 from config import settings
 import logging, json, smtplib
 from email.mime.text import MIMEText
@@ -101,7 +101,7 @@ async def submit_dispute_email(payload: DisputeEmailIngest, db=Depends(get_db)):
         severity = "MEDIUM"
 
     # Step 3: Build AI summary
-    groq_summary = (
+    ai_summary = (
         f"{dispute_type.replace('_', ' ').title()} from {contact}: "
         f"Invoice {invoice_ref} — ₹{claim_inr:,.0f} disputed. "
         f"Reason: {dispute_reason[:120]}"
@@ -203,7 +203,7 @@ async def submit_dispute_email(payload: DisputeEmailIngest, db=Depends(get_db)):
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)""",
                 dispute_id, customer_id, invoice_ref if invoice_ref != "UNKNOWN" else None,
                 resolved_order_id, dispute_type, subject,
-                groq_summary, "completed", "pending_admin", "admin", 0, "email"
+                ai_summary, "completed", "pending_admin", "admin", 0, "email"
             )
             
             # Insert the email body as the first customer message
@@ -236,7 +236,7 @@ async def submit_dispute_email(payload: DisputeEmailIngest, db=Depends(get_db)):
         "claim_amount_inr": claim_inr,
         "contact": contact,
         "ner_entities": entities,
-        "summary": groq_summary,
+        "summary": ai_summary,
         "message": f"Dispute {dispute_id} logged successfully — AI classified as '{dispute_type}' (severity: {severity})",
     }
 
@@ -245,7 +245,7 @@ async def submit_dispute_email(payload: DisputeEmailIngest, db=Depends(get_db)):
 @router.get("/{alert_id}/ai-suggest")
 async def ai_suggest_resolution(alert_id: str, db=Depends(get_db), staff=Depends(require_role(DISPUTE_ROLES))):
     """
-    Groq analyzes the dispute and pre-fills all resolution fields:
+    Ollama Cloud LLM analyzes the dispute and pre-fills all resolution fields:
     - Invoice ID (regex from summary + DB cross-check)
     - Customer name & email (from invoices + customers tables)
     - Suggested credit amount (LLM reasons from actual dispute text)
@@ -259,7 +259,7 @@ async def ai_suggest_resolution(alert_id: str, db=Depends(get_db), staff=Depends
         raise HTTPException(404, "Dispute not found")
 
     d = dict(dispute)
-    summary  = d.get("groq_alert_summary", "")
+    alert_summary = d.get("groq_alert_summary", "")
     action   = d.get("recommended_action", "")
     d_type   = d.get("alert_type", "general_dispute")
     severity = d.get("severity", "MEDIUM")
@@ -268,7 +268,7 @@ async def ai_suggest_resolution(alert_id: str, db=Depends(get_db), staff=Depends
     import re
     invoice = d.get("order_id") or ""
     if not invoice:
-        m = re.search(r"(INV-[\w\-]+)", summary + " " + action, re.IGNORECASE)
+        m = re.search(r"(INV-[\w\-]+)", alert_summary + " " + action, re.IGNORECASE)
         invoice = m.group(1).rstrip(".,;") if m else ""
 
     # Step 2: Look up invoice + customer from DB for real name & email
@@ -295,7 +295,7 @@ async def ai_suggest_resolution(alert_id: str, db=Depends(get_db), staff=Depends
     claim_str = m_amt.group(1).replace(",", "") if m_amt else "0"
     claim_amt = float(claim_str) if claim_str else 0.0
 
-    # Step 4: Let Groq reason from actual dispute text — no hardcoded rules
+    # Step 4: Let the LLM reason from actual dispute text — no hardcoded rules
     prompt = f"""You are an experienced Accounts Receivable Controller at MAQ Manufacturing (India).
 
 A customer has raised a dispute. Read the full context carefully and make a fair, well-reasoned decision.
@@ -307,7 +307,7 @@ Severity: {severity}
 Invoice: {invoice or 'Unknown'}
 Invoice Total: ₹{invoice_total:,.0f}
 Customer: {customer_name or 'Unknown'}
-Full Dispute Summary: {summary}
+Full Dispute Summary: {alert_summary}
 Recommended Action (from initial AI triage): {action}
 Customer's Claimed Amount: ₹{claim_amt:,.0f}
 
@@ -335,7 +335,7 @@ Return JSON only:
 }}"""
 
     try:
-        raw = _call_groq([{"role": "user", "content": prompt}], json_mode=True)
+        raw = call_llm([{"role": "user", "content": prompt}], json_mode=True)
         result = json.loads(raw)
         ai_invoice = result.get("invoice_id", "") or invoice
         logger.info(f"AI suggest for {alert_id}: amount={result.get('suggested_amount')}, invoice={ai_invoice}, customer_email={customer_email}")

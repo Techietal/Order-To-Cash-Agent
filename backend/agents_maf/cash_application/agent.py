@@ -1,4 +1,4 @@
-"""Cash Application Agent runner (MAF v1.9.0, Groq)."""
+"""Cash Application Agent runner (MAF v1.9.0, Ollama Cloud)."""
 from __future__ import annotations
 
 import logging

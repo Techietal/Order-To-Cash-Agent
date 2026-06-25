@@ -1,12 +1,10 @@
 """Shared LLM client builder for the MAF agentic layer.
 
-Provider-agnostic: MAF's OpenAIChatCompletionClient talks to any OpenAI-compatible
-endpoint via base_url, so we switch providers (Google AI Studio / Groq / Ollama)
-purely through config — see Settings.llm_provider and the llm_* properties.
+Only Ollama Cloud is supported. MAF's OpenAIChatCompletionClient talks to the
+OpenAI-compatible Ollama Cloud endpoint via base_url — see Settings.llm_* properties.
 
 We use OpenAIChatCompletionClient (the Chat Completions API), NOT OpenAIChatClient
-(the Responses API): Groq and Google's compatibility layer implement Chat
-Completions; the Responses API rejects requests (`previous_response_id` unsupported).
+(the Responses API): Ollama Cloud's compatibility layer implements Chat Completions.
 
 Fallback: run_agent_with_fallback() retries on rate-limit/429 using the configured
 fallback model, transparently swapping primary -> fallback.
@@ -24,14 +22,18 @@ logger = logging.getLogger(__name__)
 def _client_for(model: str):
     from agent_framework.openai import OpenAIChatCompletionClient  # type: ignore[import]
 
-    if not settings.llm_api_key and settings.llm_provider != "ollama":
+    if settings.llm_provider != "ollama_cloud":
         raise RuntimeError(
-            f"No API key for LLM provider '{settings.llm_provider}'. "
-            f"Set the matching key in .env (e.g. GOOGLE_API_KEY)."
+            "Only LLM_PROVIDER=ollama_cloud is supported. "
+            "Set LLM_PROVIDER=ollama_cloud and configure Ollama Cloud credentials."
+        )
+    if not settings.llm_api_key:
+        raise RuntimeError(
+            "OLLAMA_CLOUD_API_KEY is not set. Set it in the backend environment."
         )
     return OpenAIChatCompletionClient(
         model,
-        api_key=settings.llm_api_key or "ollama",
+        api_key=settings.llm_api_key,
         base_url=settings.llm_base_url,
     )
 

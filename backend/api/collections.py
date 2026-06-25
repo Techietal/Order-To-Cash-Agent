@@ -1,6 +1,6 @@
 """
 O2C Agent v2.0 — Collections API (Agent 8)
-Dunning email generation via Groq LLaMA 3.3 70B + Gmail SMTP delivery.
+Dunning email generation via Ollama Cloud + Gmail SMTP delivery.
 """
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
@@ -59,7 +59,7 @@ async def generate_dunning(
     staff=Depends(require_role(["admin", "collections_analyst"])),
 ):
     """
-    Agent 8 — Dunning email generation via Groq LLaMA 3.3 70B.
+    Agent 8 — Dunning email generation via Ollama Cloud.
     Optionally sends via Gmail SMTP.
     """
     # Fetch invoice + customer details
@@ -101,8 +101,8 @@ async def generate_dunning(
         3
     )
 
-    # Generate email with Groq — pass k-means segment tone
-    from ml.groq_client import generate_dunning_email
+    # Generate email with Ollama Cloud — pass k-means segment tone
+    from ml.llm_client import generate_dunning_email
     email_content = generate_dunning_email(
         customer_name=inv["company_name"],
         invoice_id=payload.invoice_id,
@@ -177,7 +177,7 @@ async def generate_dunning(
         "body": body,
         "email_sent": email_sent,
         "send_error": send_error,
-        "model": "groq_llama-3.3-70b + kmeans_segmentation",
+        "model": "ollama_cloud + kmeans_segmentation",
     }
 
 
