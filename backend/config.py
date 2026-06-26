@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     app_port: int = 8000
     frontend_url: str = "http://localhost:5173"
     log_level: str = "INFO"
+    auto_seed_demo_data: bool = False
 
     # PostgreSQL
     database_url: str = ""  # Full DSN takes priority when set (e.g. Neon cloud)

@@ -732,11 +732,7 @@ DEV_STAFF_USERS = [
 ]
 
 
-async def seed_development_staff_users(conn):
-    """Create local demo staff users only in development environments."""
-    if settings.app_env.lower() != "development":
-        return
-
+async def seed_demo_staff_users(conn) -> int:
     for username, password, role, display_name in DEV_STAFF_USERS:
         await conn.execute(
             """INSERT INTO staff_users
@@ -749,8 +745,37 @@ async def seed_development_staff_users(conn):
             role,
             display_name,
         )
+
+    return await conn.fetchval(
+        "SELECT COUNT(*) FROM staff_users WHERE username = ANY($1::text[])",
+        [u[0] for u in DEV_STAFF_USERS],
+    )
+
+
+async def seed_development_staff_users(conn):
+    """Create local demo staff users only in development environments."""
+    if settings.app_env.lower() != "development":
+        return
+
+    await seed_demo_staff_users(conn)
     logger.info("Development staff seed users ensured")
 
+
+async def seed_demo_staff_users_if_enabled(conn):
+    if not settings.auto_seed_demo_data:
+        return
+
+    logger.info("AUTO_SEED_DEMO_DATA enabled")
+    existing = await conn.fetchval(
+        "SELECT COUNT(*) FROM staff_users WHERE username = ANY($1::text[])",
+        [u[0] for u in DEV_STAFF_USERS],
+    )
+    if existing == len(DEV_STAFF_USERS):
+        logger.info("Demo users already exist, skipping")
+        return
+
+    await seed_demo_staff_users(conn)
+    logger.info("Demo users seeded successfully")
 
 
 async def init_schema():
@@ -767,6 +792,7 @@ async def init_schema():
         except Exception as e:
             logger.warning(f"Schema init warning (some statements may already exist): {e}")
         await seed_development_staff_users(conn)
+        await seed_demo_staff_users_if_enabled(conn)
     logger.info("✅ PostgreSQL schema initialized — all tables ready")
 
 
