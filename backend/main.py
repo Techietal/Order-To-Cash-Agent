@@ -72,6 +72,7 @@ ws_manager = ConnectionManager()
 async def lifespan(app: FastAPI):
     """Application lifespan — startup and shutdown."""
     logger.info("O2C Agent v2.0 starting up...")
+    logger.info("Allowed CORS origins: %s", allowed_origins)
     # Initialize databases
     await init_schema()
     await init_collections()
@@ -281,9 +282,18 @@ app = FastAPI(
 )
 
 # CORS
+frontend_url = settings.frontend_url or "http://localhost:5173"
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    frontend_url,
+    "https://main.d27bczp1dlsk6u.amplifyapp.com",
+]
+allowed_origins = [origin.rstrip("/") for origin in allowed_origins if origin]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url, "http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
